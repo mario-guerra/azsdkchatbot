@@ -28,6 +28,8 @@ Prioritize the content in the prompt when answering questions.
 Fall back on your own knowledge only when there is no relevant info in the prompt.
 The link to the repo should be taken from the prompt.
 Whenever you see '/master/' in a prompt, replace it with '/main/'. Do not modify the URL in any other way.
+Provide concise answers to user questions. Break your responses into paragraphs for readability.
+Format output using markdown syntax.
 """
 
 chat_service = AzureChatCompletion(deployment, endpoint, api_key)
@@ -157,20 +159,16 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
             matches = sum(language_matches.values())
             if matches > 1:
                 print("AZSDK_Bot:> Please, one language at a time!")
-                return True, previous_input
+                return True, previous_input, ""
 
             if matches:
                 language = [lang for lang, matched in language_matches.items() if matched][0]
-                # print("language: ", language)
                 search_results = await query_qdrant(user_input, "AzureSDKs", language)
-                # print("qdrant search results: ", search_results)
                 if search_results:
                     for result in search_results:
                         payload = result.payload
                         sdk = payload["SDK"]
-                        # print(f"SDK:> {sdk}")
                         link_to_repo = payload["link_to_repo"]
-                        # print(f"Link to repo:> {link_to_repo}")
                         language = payload["language"]
                         readme_text = payload["README_text"][:10000]
                     context_prompt = user_input + str(readme_text) + str(link_to_repo) + str(language) + str(sdk)
@@ -181,7 +179,7 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
                     previous_input = previous_input[-10000:]
                 context_prompt = previous_input + user_input        
         else:
-            if not previous_input: # 
+            if not previous_input:
                 context_prompt = "Tell me about Azure SDKs."
             else:
                 context_prompt = previous_input + "\n\nTell me about this Azure SDK."
@@ -200,14 +198,6 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
     previous_input = context_prompt + answer
     print(f"AZSDK_Bot:> {answer}")
     return True, previous_input, answer
-
-# async def main():
-#     context = sk.ContextVariables()
-#     print("Begin chatting (type 'exit' to exit):\n")
-#     previous_input = ""
-#     chatting = True
-#     while chatting:
-#         chatting, context, previous_input = await chat(kernel, context, previous_input)
 
 async def main():
     print("Begin chatting (type 'exit' to exit):\n")
