@@ -22,7 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
             callback(panel);
         });
 
-        // Move the client.on('data', ...) event listener here to avoid duplication
         client.on('data', (data) => {
             const output = data.toString();
             console.log('Python script output:', output);
@@ -69,11 +68,20 @@ export function activate(context: vscode.ExtensionContext) {
                 const userInput = document.getElementById('userInput');
                 const chatHistory = document.getElementById('chatHistory');
 
-                sendButton.addEventListener('click', () => {
+                function sendMessage() { // Added sendMessage function
                     const text = userInput.value;
                     userInput.value = '';
                     chatHistory.innerHTML += '<p><strong>User:</strong> ' + text + '</p>';
                     vscode.postMessage({ command: 'sendMessage', text });
+                }
+
+                sendButton.addEventListener('click', sendMessage);
+
+                userInput.addEventListener('keydown', (event) => { // Added keydown event listener for userInput
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        sendMessage();
+                    }
                 });
 
                 window.addEventListener('message', (event) => {
