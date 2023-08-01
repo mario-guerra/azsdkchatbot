@@ -74,8 +74,9 @@ export function activate(context: vscode.ExtensionContext) {
                     flex-direction: column;
                     height: 100%;
                 }
-                .header-pane {
-                    background-color: #f0f0f0;
+                .chat-pane {
+                    flex-grow: 1;
+                    overflow-y: auto;
                     padding: 10px;
                 }
                 .input-pane {
@@ -88,23 +89,17 @@ export function activate(context: vscode.ExtensionContext) {
                     flex-grow: 1;
                     margin-right: 10px;
                 }
-                .chat-pane {
-                    flex-grow: 1;
-                    overflow-y: auto;
-                    padding: 10px;
-                }
             </style>
         </head>
         <body>
             <div class="container">
-                <div class="header-pane">
+                <div class="chat-pane">
                     <h1>Azure SDK Copilot</h1>
+                    <div id="chatHistory"></div>
                 </div>
                 <div class="input-pane">
                     <input type="text" id="userInput" placeholder="Type your message...">
                     <button id="sendButton">Send</button>
-                </div>
-                <div class="chat-pane" id="chatHistory">
                 </div>
             </div>
             <script>
@@ -141,6 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
             </script>
         </body>
         </html>`;
+
         panel.webview.onDidReceiveMessage(
             (message) => {
                 switch (message.command) {
@@ -154,6 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
             context.subscriptions
         );
     }
+    
     let disposable2 = vscode.commands.registerCommand('azsdkchatbot.runPython', () => {
         createChatPanel();
     });
@@ -180,4 +177,4 @@ function startPythonScript() {
     pythonProcess.on('close', (code) => {
         console.log(`Python script exited with code ${code}`);
     });
-}    
+}
