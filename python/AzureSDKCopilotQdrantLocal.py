@@ -28,7 +28,7 @@ Prioritize the content in the prompt when answering questions.
 Fall back on your own knowledge only when there is no relevant info in the prompt.
 The link to the repo should be taken from the prompt.
 Whenever you see '/master/' in a prompt, replace it with '/main/'. Do not modify the URL in any other way.
-Provide concise answers to user questions. Break your responses into paragraphs for readability.
+Provide concise and clear answers to user questions. Break responses into paragraphs for readability.
 Format output using markdown syntax.
 """
 
@@ -163,7 +163,7 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
 
             if matches:
                 language = [lang for lang, matched in language_matches.items() if matched][0]
-                search_results = await query_qdrant(user_input, "AzureSDKs", language)
+                search_results = await query_qdrant(user_input + "\ndata plane", "AzureSDKs", language)
                 if search_results:
                     for result in search_results:
                         payload = result.payload
