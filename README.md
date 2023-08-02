@@ -1,71 +1,102 @@
-# azsdkchatbot README
+# Azure SDK Copilot Extension for VS Code (Proof-of-Concept)
 
-This is the README for your extension "azsdkchatbot". After writing up a brief description, we recommend including the following sections.
+This project provides a Visual Studio Code extension for interacting with the ChatGPT model in a chat-style interface. It consists of a TypeScript UI and a Python backend that communicate with each other via sockets.
 
-## Features
+## Dependencies
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Python Backend
 
-For example if there is an image subfolder under your extension project workspace:
+The following dependencies are required to run the Python backend:
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Python 3.6 or higher
+2. `semantic-kernel==0.2.7.dev0`
+3. `qdrant-client`
+4. `socket`
+5. `re`
+6. `asyncio`
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### TypeScript UI
 
-## Requirements
+The following dependencies are required to run the TypeScript UI:
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. Visual Studio Code
+2. TypeScript
+3. vscode
+4. path
+5. net
+6. child_process
+7. markdown-it
 
-## Extension Settings
+## Installation
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### Python Backend
 
-For example:
+To install the dependencies for the Python backend, run the following commands:
 
-This extension contributes the following settings:
+```bash
+pip install semantic-kernel==0.2.7.dev0
+pip install qdrant-client
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### TypeScript UI
 
-## Known Issues
+1. Install [Visual Studio Code](https://code.visualstudio.com/).
+2. Install [TypeScript](https://www.typescriptlang.org/download) globally using npm:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```bash
+npm install -g typescript
+```
 
-## Release Notes
+3. Install the required npm packages:
 
-Users appreciate release notes as you update your extension.
+```bash
+npm install vscode path net child_process markdown-it
+```
 
-### 1.0.0
+## Running the Extension
 
-Initial release of ...
+To run the TypeScript UI, open the extension project in Visual Studio Code and press `F5`. In the new window that loads, press `Ctrl-Shift-P` to bring up the command window. Select 'Start SDK Copilot' from the options, and the chat panel UI will be displayed, allowing you to interact with the chatbot.
 
-### 1.0.1
+## Overview of Functions
 
-Fixed issue #.
+### Python Backend
 
-### 1.1.0
+- `create_socket()`: This function initializes a socket object, binds it to a specified address and port, and sets it to listen for incoming connections.
 
-Added features X, Y, and Z.
+- `create_embedding(data)`: This asynchronous function generates embeddings for the given data. It includes retry logic to account for rate limit errors.
 
----
+- `ask_chatbot(input)`: This asynchronous function generates a response to the user's question from relevant README content using the ChatGPT API.
 
-## Following extension guidelines
+- `query_qdrant(user_input, collection_name, language)`: This asynchronous function queries the Qdrant storage with the user input, collection name, and language to find relevant READMEs.
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+- `chat(user_input: str, previous_input)`: This asynchronous function processes the user input, checks for language matches, and calls the `query_qdrant()` function. It handles cases where the user input does not match any language and provides the chatbot answer at the end of each iteration.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+- `main()`: This asynchronous function sets up the socket server, listens for incoming connections and user inputs, and calls the `chat()` function to generate responses. It sends the responses back to the VS Code extension through the socket connection.
 
-## Working with Markdown
+### TypeScript UI
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+- `activate(context: vscode.ExtensionContext)`: This function is called when the extension is activated, and it sets up the extension's functionality.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+- `connectToPythonScript(callback: (panel: vscode.WebviewPanel) => void, panel: vscode.WebviewPanel)`: This function connects the TypeScript UI to the Python script via a socket connection.
 
-## For more information
+- `runPythonCode(userInput: string, panel: vscode.WebviewPanel)`: This function sends the user input to the Python script and waits for the response.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+- `createChatPanel()`: This function creates the chat panel UI for the extension.
 
-**Enjoy!**
+- `deactivate()`: This function is called when the extension is deactivated.
+
+- `startPythonScript()`: This function starts the Python script as a child process.
+
+## Usage
+
+Once you have installed the dependencies and set up the extension, you can start using the ChatGPT extension for Visual Studio Code. Follow these steps to interact with the chatbot:
+
+1. Open the extension project in Visual Studio Code and press `F5`. A new window will load with the extension activated.
+2. Press `Ctrl-Shift-P` to bring up the command window.
+3. Select 'Start SDK Copilot' from the options. The chat panel UI will be displayed.
+4. Type your questions or messages in the input field and press 'Enter' or click the 'Send' button to send them to the chatbot.
+5. Use '/\<language\>' triggers in your question to trigger a query into the backing Qdrant db memory store. Supported languages are: [`/rust`, `/net`, `/javascript`, `/java`]
+      Example query: "/rust sdk for service bus"
+6. The chatbot will respond with relevant answers, and you can continue the conversation by asking follow-up questions or entering new queries.
+
+The ChatGPT extension is designed to provide information about Azure SDKs and can answer questions based on the context provided in the prompts. It prioritizes content from the prompts and falls back on its own knowledge only when there is no relevant information in the prompt. The chatbot provides concise and clear answers, formatted using markdown syntax for better readability.
