@@ -86,7 +86,7 @@ async def ask_chatbot(input):
     reply = await chat_service.complete_chat_async(messages=messages, request_settings=ChatRequestSettings(temperature=0.7, top_p=0.8, max_tokens=2000))
     return(reply)
 
-qdrant_client = QdrantClient(path=r"C:\Users\marioguerra\Work\semantic-kernel\python\semantic_kernel\memory")
+qdrant_client = QdrantClient(path=r"C:\Users\marioguerra\Work\SDKChat_extension\azsdkchatbot\python")
 
 async def query_qdrant(user_input, collection_name, language):
     # print("Querying Qdrant with input: ", user_input)

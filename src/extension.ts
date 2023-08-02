@@ -62,6 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Azure SDK Copilot</title>
             <link href="${stylesPath}" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
             <style>
                 body, html {
                     margin: 0;
@@ -98,6 +99,11 @@ export function activate(context: vscode.ExtensionContext) {
                     padding: 10px;
                     background-color: var(--vscode-editor-background); /* Use the editor background color */
                 }
+                .message {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                }
         </style>
         </head>
         <body>
@@ -126,7 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
                 function sendMessage() {
                     const text = userInput.value;
                     userInput.value = '';
-                    chatHistory.insertAdjacentHTML('beforeend', '<p><strong>User:</strong> ' + text + '</p>');
+                    chatHistory.insertAdjacentHTML('beforeend', '<p><strong><i class="fas fa-user"></i></p></strong><div><p>' + text + '</p></div></div>');
                     vscode.postMessage({ command: 'sendMessage', text });
                     scrollChatToBottom();
                 }
@@ -145,10 +151,14 @@ export function activate(context: vscode.ExtensionContext) {
                     switch (message.command) {
                         case 'receiveMessage':
                             const renderedMarkdown = message.markdownText;
-                            chatHistory.insertAdjacentHTML('beforeend', '<p><strong>AZSDKBot:</strong> ' + renderedMarkdown + '</p>');
+                            chatHistory.insertAdjacentHTML('beforeend', '<p><span><strong><i class="fas fa-robot"></i></strong>  ' + renderedMarkdown + '</span></p>');
                             scrollChatToBottom();
                             break;
                     }
+                });
+
+                window.addEventListener('DOMContentLoaded', () => {
+                    userInput.focus();
                 });
             </script>
         </body>
