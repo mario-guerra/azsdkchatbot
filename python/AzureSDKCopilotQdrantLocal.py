@@ -220,6 +220,7 @@ async def main():
             user_input = data.decode('utf-8')
             chatting, previous_input, answer = await chat(user_input, previous_input)
             conn.sendall(answer.encode('utf-8'))
+        conn.sendall("endchat".encode('utf-8'))
     conn.close()
 if __name__ == "__main__":
     asyncio.run(main())

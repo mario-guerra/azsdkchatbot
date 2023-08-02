@@ -75,25 +75,30 @@ export function activate(context: vscode.ExtensionContext) {
                     height: 100%;
                 }
                 .header-pane {
-                    background-color: #f0f0f0;
+                    background-color: var(--vscode-editor-background); /* Use the editor background color */
                     padding: 10px;
+                }
+                .header-pane h1 {
+                    color: var(--vscode-editor-foreground);
                 }
                 .input-pane {
                     display: flex;
                     align-items: center;
                     padding: 10px;
-                    background-color: #f0f0f0;
+                    background-color: var(--vscode-editor-background); /* Use the editor background color */
                 }
                 #userInput {
                     flex-grow: 1;
                     margin-right: 10px;
+                    border: 1px solid var(--vscode-editor-background); /* Use the editor background color */
                 }
                 .chat-pane {
                     flex-grow: 1;
                     overflow-y: auto;
                     padding: 10px;
+                    background-color: var(--vscode-editor-background); /* Use the editor background color */
                 }
-            </style>
+        </style>
         </head>
         <body>
             <div class="container">
@@ -113,11 +118,17 @@ export function activate(context: vscode.ExtensionContext) {
                 const userInput = document.getElementById('userInput');
                 const chatHistory = document.getElementById('chatHistory');
 
+                // Add the scrollChatToBottom function here
+                function scrollChatToBottom() {
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+
                 function sendMessage() {
                     const text = userInput.value;
                     userInput.value = '';
                     chatHistory.insertAdjacentHTML('beforeend', '<p><strong>User:</strong> ' + text + '</p>');
                     vscode.postMessage({ command: 'sendMessage', text });
+                    scrollChatToBottom();
                 }
 
                 sendButton.addEventListener('click', sendMessage);
@@ -135,6 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
                         case 'receiveMessage':
                             const renderedMarkdown = message.markdownText;
                             chatHistory.insertAdjacentHTML('beforeend', '<p><strong>AZSDKBot:</strong> ' + renderedMarkdown + '</p>');
+                            scrollChatToBottom();
                             break;
                     }
                 });
