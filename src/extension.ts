@@ -4,6 +4,8 @@ import * as net from 'net';
 import * as child_process from 'child_process';
 import MarkdownIt from 'markdown-it';
 
+let pythonScriptRunning = false;
+
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "azsdkchatbot" is now active!');
 
@@ -53,6 +55,10 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
     function createChatPanel() {
+        // Check if the Python script is running and start it if it's not
+        if (!pythonScriptRunning) {
+            startPythonScript();
+        }
         const panel = vscode.window.createWebviewPanel(
             'azureSDKCopilot',
             'Azure SDK Copilot',
@@ -162,20 +168,13 @@ export function activate(context: vscode.ExtensionContext) {
                 window.addEventListener('message', (event) => {
                     const message = event.data;
                     switch (message.command) {
-                    case 'receiveMessage':
+                      case 'receiveMessage':
                         const renderedMarkdown = message.markdownText;
-
-                        // Check if message is 'endchat'
-                        if (renderedMarkdown.trim() === 'endchat') {
-                        // Send a command to close the panel
-                        vscode.postMessage({ command: 'closePanel' });
-                        } else {
                         chatHistory.insertAdjacentHTML('beforeend', '<div class="message"><strong><i class="fas fa-robot"></i></strong><div>' + renderedMarkdown + '</div></div>');
                         scrollChatToBottom();
-                        }
                         break;
                     }
-                });
+                  });                
 
                 window.addEventListener('DOMContentLoaded', () => {
                     userInput.focus();
@@ -224,5 +223,8 @@ function startPythonScript() {
 
     pythonProcess.on('close', (code) => {
         console.log(`Python script exited with code ${code}`);
+        // Set pythonScriptRunning to false when the script exits
+        pythonScriptRunning = false;
     });
+    pythonScriptRunning = true;
 }    
