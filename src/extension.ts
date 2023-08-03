@@ -38,12 +38,19 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     function runPythonCode(userInput: string, panel: vscode.WebviewPanel) {
-        connectToPythonScript((panel) => {
+        if (userInput === 'exit') {
+          if (client) {
+            client.write(userInput);
+          }
+          panel.dispose();
+        } else {
+          connectToPythonScript((panel) => {
             if (client) {
-                client.write(userInput);
+              client.write(userInput);
             }
-        }, panel);
-    }
+          }, panel);
+        }
+      }
 
     function createChatPanel() {
         const panel = vscode.window.createWebviewPanel(
@@ -130,12 +137,18 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 function sendMessage() {
-                    const text = userInput.value;
+                    const text = userInput.value.trim();
                     userInput.value = '';
-                    chatHistory.insertAdjacentHTML('beforeend', '<p><strong><i class="fas fa-user"></i></p></strong><div><p>' + text + '</p></div></div>');
-                    vscode.postMessage({ command: 'sendMessage', text });
+
+                    if (text === 'exit' || text === 'end') {
+                      vscode.postMessage({ command: 'exit' });
+                    } else {
+                      chatHistory.insertAdjacentHTML('beforeend', '<p><strong><i class="fas fa-user"></i></p></strong><div><p>' + text + '</p></div></div>');
+                      vscode.postMessage({ command: 'sendMessage', text });
+                    }
+
                     scrollChatToBottom();
-                }
+                  }
 
                 sendButton.addEventListener('click', sendMessage);
 
@@ -149,11 +162,18 @@ export function activate(context: vscode.ExtensionContext) {
                 window.addEventListener('message', (event) => {
                     const message = event.data;
                     switch (message.command) {
-                        case 'receiveMessage':
-                            const renderedMarkdown = message.markdownText;
-                            chatHistory.insertAdjacentHTML('beforeend', '<p><span><strong><i class="fas fa-robot"></i></strong>  ' + renderedMarkdown + '</span></p>');
-                            scrollChatToBottom();
-                            break;
+                    case 'receiveMessage':
+                        const renderedMarkdown = message.markdownText;
+
+                        // Check if message is 'endchat'
+                        if (renderedMarkdown.trim() === 'endchat') {
+                        // Send a command to close the panel
+                        vscode.postMessage({ command: 'closePanel' });
+                        } else {
+                        chatHistory.insertAdjacentHTML('beforeend', '<div class="message"><strong><i class="fas fa-robot"></i></strong><div>' + renderedMarkdown + '</div></div>');
+                        scrollChatToBottom();
+                        }
+                        break;
                     }
                 });
 
@@ -165,16 +185,19 @@ export function activate(context: vscode.ExtensionContext) {
         </html>`;
         panel.webview.onDidReceiveMessage(
             (message) => {
-                switch (message.command) {
-                    case 'sendMessage':
-                        const userInput = message.text;
-                        runPythonCode(userInput, panel);
-                        break;
-                }
+              switch (message.command) {
+                case 'sendMessage':
+                  const userInput = message.text;
+                  runPythonCode(userInput, panel);
+                  break;
+                case 'exit':
+                  runPythonCode('exit', panel);
+                  break;
+              }
             },
             undefined,
             context.subscriptions
-        );
+          );
     }
     let disposable2 = vscode.commands.registerCommand('azsdkchatbot.runPython', () => {
         createChatPanel();
