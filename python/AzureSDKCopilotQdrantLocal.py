@@ -30,6 +30,7 @@ The link to the repo should be taken from the prompt.
 Whenever you see '/master/' in a prompt, replace it with '/main/'. Do not modify the URL in any other way.
 Provide concise and clear answers to user questions. Break responses into paragraphs for readability.
 Format output using markdown syntax.
+If you see the label '[NO_RESULTS]' in the prompt, politely inform the user that there are no relevant results.
 """
 
 chat_service = AzureChatCompletion(deployment, endpoint, api_key)
@@ -104,8 +105,8 @@ async def query_qdrant(user_input, collection_name, language):
             ]
         ),
         limit=1,
-        # score_threshold=0.75, # we may want to consider a threshold 
-        # score if wewant to filter out low confidence results
+        score_threshold=0.75, # we may want to consider a threshold
+                              # score to filter out low confidence results
     )
     return search_results
 
@@ -173,7 +174,7 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
                         readme_text = payload["README_text"][:10000]
                     context_prompt = user_input + str(readme_text) + str(link_to_repo) + str(language) + str(sdk)
                 else:
-                    context_prompt = "No results found for this query."
+                    context_prompt = "[NO_RESULTS]"
             else:
                 if len(previous_input) > 10000:
                     previous_input = previous_input[-10000:]
@@ -190,7 +191,7 @@ async def chat(user_input: str, previous_input) -> Tuple[bool, str, str]:
     except EOFError:
         print("\n\nExiting chat...")
         return False, "", ""
-    if user_input == "exit":
+    if user_input == "exit" or user_input == "end":
         print("\n\nExiting chat...")
         return False, "", ""
     print("Thinking...")
