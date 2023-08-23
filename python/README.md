@@ -1,6 +1,16 @@
 # ChatGPT for VS Code Extension - Python Backend
 
-This is the Python backend for the ChatGPT extension for Visual Studio Code. It provides a chat-style interface for interacting with the ChatGPT model. This backend communicates with the extension via sockets.
+This is the Python backend for the ChatGPT extension for Visual Studio Code. It provides a chat-style interface for interacting with the ChatGPT model. This backend communicates with the extension via a socket. 
+
+READMEs for all Azure SDKs [.NET, Java, JavaScript, Python, Rust] were scraped from GitHub and used for embeddings in a Qdrant vector database, in order to implement a [retrieval-augmented generation pattern](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/grounding-llms/ba-p/3843857). 
+
+The script determines when to send queries to Qdrant by analyzing the user input for language-specific patterns. The chat() function defines regular expressions for different languages (Rust, Python, Java, JavaScript, and .NET). It then checks if the user input matches any of these patterns.
+
+If the user input matches exactly one language pattern, the script proceeds to call the query_qdrant() function with the matched language, user input, and collection name ("AzureSDKs"). This function then generates an embedding for the user input and sends a search request to the Qdrant client with the generated embedding. 
+
+The Qdrant query results are parsed to retrieve the relevant README text and a prompt is constructed with the user query plus README content. The prompt is then passed to the chat model, and the chat response is passed back to the UI via socket. 
+
+The script is using the `text-embedding-ada-002` model for generating embeddings and `gpt-35-turbo` for the chat functionality.
 
 ## Dependencies
 
