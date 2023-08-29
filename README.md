@@ -8,6 +8,10 @@ The [TypeScript front end](https://github.com/mario-guerra/azsdkchatbot/blob/mai
 
 This is strictly a proof-of-concept demonstrating the use of retrieval-augmented generation (RAG) for surfacing content from our GitHub repos.
 
+## Screenshots
+![Start SDK Copilot](screenshots/Start_SDK_Copilot.png)
+![Chat with SDK Copilot](screenshots/Chat_with_SDK_Copilot.png)
+
 ## Dependencies
 
 ### Python Backend
@@ -92,6 +96,10 @@ To run the TypeScript UI, open the extension project in Visual Studio Code and p
 - `deactivate()`: This function is called when the extension is deactivated.
 
 - `startPythonScript()`: This function starts the Python script as a child process.
+
+## Screenshots
+
+[images go here]
 
 ## Usage
 
