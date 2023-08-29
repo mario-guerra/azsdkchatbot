@@ -97,10 +97,6 @@ To run the TypeScript UI, open the extension project in Visual Studio Code and p
 
 - `startPythonScript()`: This function starts the Python script as a child process.
 
-## Screenshots
-
-[images go here]
-
 ## Usage
 
 Once you have installed the dependencies and set up the extension, you can start using the ChatGPT extension for Visual Studio Code. Follow these steps to interact with the chatbot:
